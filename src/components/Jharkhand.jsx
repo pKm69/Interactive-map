@@ -12,13 +12,33 @@ export default function JharkhandMap() {
   const hoveredLayerRef = useRef(null);
   const selectedLayerRef = useRef(null);
 
-  // Define all 24 colors
   const colors = [
-    "#FF6B6B", "#4ECDC4", "#FFE66D", "#1A535C", "#FF9F1C", "#2EC4B6", 
-    "#E71D36", "#011627", "#FFBE0B", "#8338EC", "#FF6363", "#3A86FF", 
-    "#F72585", "#7209B7", "#4CC9F0", "#FF89A0", "#4361EE", "#F4D35E", 
-    "#06D6A0", "#EF476F", "#118AB2", "#FFD166", "#073B4C", "#F94144"
+    "#FF6B6B", // Coral Red
+    "#FFBE0B", // Bright Yellow
+    "#FF9F1C", // Orange
+    "#FFE066", // Light Yellow
+    "#F72585", // Magenta
+    "#FF89A0", // Pink
+    "#EF476F", // Strawberry Red
+    "#FF6363", // Light Red
+    "#4ECDC4", // Turquoise
+    "#2EC4B6", // Aqua
+    "#06D6A0", // Mint Green
+    "#4CC9F0", // Sky Blue
+    "#3A86FF", // Bright Blue
+    "#4361EE", // Royal Blue
+    "#8338EC", // Purple
+    "#7209B7", // Deep Purple
+    "#FFD166", // Lemon
+    "#F4D35E", // Mustard
+    "#F9C74F", // Golden Yellow
+    "#90BE6D", // Light Green
+    "#43AA8B", // Tealish Green
+    "#F9844A", // Orange-Red
+    "#F8961E", // Tangerine
+    "#F94144"  // Vivid Red
   ];
+  
 
   // Function to shuffle array (Fisher-Yates algorithm)
   const shuffleArray = (array) => {
@@ -55,6 +75,13 @@ export default function JharkhandMap() {
         // Assign colors once we have the GeoJSON data
         if (data && data.features) {
           setDistrictColors(assignDistrictColors(data.features));
+          
+          // Auto-fit map to Jharkhand bounds
+          if (mapRef.current && data.features.length > 0) {
+            const geoJsonLayer = L.geoJSON(data);
+            const bounds = geoJsonLayer.getBounds();
+            mapRef.current.fitBounds(bounds, { padding: [20, 20] });
+          }
         }
       })
       .catch((err) => console.error("Failed to load geojson:", err));
@@ -161,23 +188,30 @@ export default function JharkhandMap() {
             }
           });
 
-          // Zoom to selected
-          const bounds = layer.getBounds();
-          if (mapRef.current && bounds.isValid()) {
-            mapRef.current.fitBounds(bounds, { padding: [30, 30] });
-          }
+          // Removed zoom functionality to keep map at fixed view
         }
       }
     });
   };
 
   return (
-    <div style={{ height: "100vh", width: "100%" }}>
+    <div style={{ 
+      height: "110vh", 
+      width: "80%", 
+      margin: "0 auto" 
+    }}>
       <MapContainer
         center={[23.6, 85.3]}
-        zoom={7}
+        zoom={8}
         style={{ height: "100%", width: "100%" }}
         whenCreated={(mapInstance) => (mapRef.current = mapInstance)}
+        dragging={false}
+        touchZoom={false}
+        doubleClickZoom={false}
+        scrollWheelZoom={false}
+        boxZoom={false}
+        keyboard={false}
+        zoomControl={false}
       >
         <TileLayer
           attribution='&copy; <a href="https://carto.com/">Carto</a>'
