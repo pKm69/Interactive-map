@@ -249,7 +249,19 @@ export default function JharkhandMap() {
           )}
           {markers.map((place, idx) => (
             <Marker key={idx} position={[place.lat, place.lon]}>
-              <Popup>{place.name}</Popup>
+              <Popup>
+                <div className="popup-content">
+                  <span>{place.name}</span>
+                  {place.streetView && (
+                    <button
+                      className="explore-button"
+                      onClick={() => window.open(place.streetView, "_blank")}
+                    >
+                      Explore Now!
+                    </button>
+                  )}
+                </div>
+              </Popup>
             </Marker>
           ))}
         </MapContainer>

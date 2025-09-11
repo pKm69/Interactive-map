@@ -4,7 +4,7 @@ const jharkhandTouristPlaces = [
     { district: "Ranchi", name: "Rock Garden", lat: 23.4121, lon: 85.2960 , streetView: "https://www.google.com/maps/place/Rock+Garden,+Gandhi+Nagar,+Ranchi,+Jharkhand+834008/@23.4044991,85.3114608,3a,75y,187.48h,80.44t/data=!3m8!1e1!3m6!1sCIHM0ogKEICAgICG0qLMDA!2e10!3e11!6shttps:%2F%2Flh3.googleusercontent.com%2Fgpms-cs-s%2FAB8u6HZ6VbyilZLJMu3SFt3C6dpxAwHb8Hw8kVkvQtM7NxVzUbcD3ae8r6cMHDuIxqcE5Ve3UPJaZtj2Kv9btiQtR8f2d9CgQU_J0-saN6qQNkM43_LgE7_vIroC0AMwCukD7vEos_Q%3Dw900-h600-k-no-pi9.559247838951748-ya293.4810150232191-ro0-fo100!7i7680!8i3840!4m7!3m6!1s0x39f4e0d59a64e2f3:0x47cadca06e0502ee!8m2!3d23.4038472!4d85.3129755!10e5!16s%2Fg%2F1jkxylhfv?entry=ttu&g_ep=EgoyMDI1MDkwOC4wIKXMDSoASAFQAw%3D%3D"},
   
     // 2. Dhanbad
-    { district: "Dhanbad", name: "Maithon Dam", lat: 23.8140, lon: 86.7915 , streetView: ""},
+    { district: "Dhanbad", name: "Maithon Dam", lat: 23.8140, lon: 86.7915 , streetView: "google.com/maps/@23.783095,86.813821,3a,75y,307.89h,90t/data=!3m8!1e1!3m6!1sCIHM0ogKEICAgIDeqeWZoAE!2e10!3e11!6shttps:%2F%2Flh3.googleusercontent.com%2Fgpms-cs-s%2FAB8u6HboktGYCoR31-D9A3dKpz8Pd6RscvgSmYUgKlgxXk3iPsEBUjPJcNv-B87kU5B24uDsBpyXD8WEwu7BKHvQkkusq-POeuY_GlWssKsTFxioMxS-pC_aLjUC_VuE5Os7qJYSYfts%3Dw900-h600-k-no-pi0-ya265.88858512057135-ro0-fo100!7i8704!8i4352?entry=ttu&g_ep=EgoyMDI1MDkwOC4wIKXMDSoASAFQAw%3D%3D"},
     { district: "Dhanbad", name: "Bhatinda Falls", lat: 23.8292, lon: 86.3725 , streetView: ""},
   
     // 3. Bokaro
