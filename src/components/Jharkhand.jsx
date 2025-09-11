@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
-import { MapContainer, TileLayer, GeoJSON } from "react-leaflet";
+import { MapContainer, TileLayer, GeoJSON, Marker, Popup } from "react-leaflet";
+import jharkhandTouristPlaces from "../../public/data/places.js";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "./mapStyles.css";
@@ -7,6 +8,7 @@ import "./mapStyles.css";
 export default function JharkhandMap() {
   const [geoData, setGeoData] = useState(null);
   const [districtColors, setDistrictColors] = useState({});
+  const [markers, setMarkers] = useState([]);
   const mapRef = useRef(null);
   const layerGroupRef = useRef([]);
   const hoveredLayerRef = useRef(null);
@@ -100,6 +102,7 @@ export default function JharkhandMap() {
       }
     });
     selectedLayerRef.current = null;
+    setMarkers([]); // Clear markers
   };
 
   const onEachFeature = (feature, layer) => {
@@ -189,7 +192,16 @@ export default function JharkhandMap() {
             }
           });
 
-          // Removed zoom functionality to keep map at fixed view
+          if (districtName === "Ranchi") {
+            const places = jharkhandTouristPlaces.filter(
+              (place) => place.district === districtName
+            );
+            setMarkers(places);
+          } else {
+            setMarkers([]);
+          }
+        } else {
+          setMarkers([]);
         }
       }
     });
@@ -235,6 +247,11 @@ export default function JharkhandMap() {
               onEachFeature={onEachFeature}
             />
           )}
+          {markers.map((place, idx) => (
+            <Marker key={idx} position={[place.lat, place.lon]}>
+              <Popup>{place.name}</Popup>
+            </Marker>
+          ))}
         </MapContainer>
         <div 
           className="deselect-button"
