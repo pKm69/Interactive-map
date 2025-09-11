@@ -192,14 +192,10 @@ export default function JharkhandMap() {
             }
           });
 
-          if (districtName === "Ranchi") {
-            const places = jharkhandTouristPlaces.filter(
-              (place) => place.district === districtName
-            );
-            setMarkers(places);
-          } else {
-            setMarkers([]);
-          }
+          const places = jharkhandTouristPlaces.filter(
+            (place) => place.district === districtName && place.streetView
+          );
+          setMarkers(places);
         } else {
           setMarkers([]);
         }
