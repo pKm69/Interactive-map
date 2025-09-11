@@ -99,6 +99,7 @@ export default function JharkhandMap() {
         element.classList.remove("hovered", "selected", "dimmed");
       }
     });
+    selectedLayerRef.current = null;
   };
 
   const onEachFeature = (feature, layer) => {
@@ -194,32 +195,61 @@ export default function JharkhandMap() {
     });
   };
 
+  const handleDeselect = () => {
+    resetAll();
+  };
+
   return (
     <div style={{ 
       height: "110vh", 
       width: "80%", 
+      position: "relative", 
       margin: "0 auto" 
     }}>
-      <MapContainer
-        center={[23.6, 85.3]}
-        zoom={8}
-        style={{ height: "100%", width: "100%" }}
-        whenCreated={(mapInstance) => (mapRef.current = mapInstance)}
-        dragging={false}
-        touchZoom={false}
-        doubleClickZoom={false}
-        scrollWheelZoom={false}
-        boxZoom={false}
-        keyboard={false}
-        zoomControl={false}
-      >
-        <TileLayer
-          attribution='&copy; <a href="https://carto.com/">Carto</a>'
-          url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-          subdomains={["a", "b", "c", "d"]}
-        />
-        {geoData && <GeoJSON data={geoData} onEachFeature={onEachFeature} />}
-      </MapContainer>
+      <div style={{ 
+        position: 'relative', 
+        height: '100%', 
+        width: '100%'
+      }}>
+        <MapContainer
+          center={[23.6, 85.3]}
+          zoom={8}
+          style={{ height: "100%", width: "100%" }}
+          whenCreated={(mapInstance) => (mapRef.current = mapInstance)}
+          dragging={false}
+          touchZoom={false}
+          doubleClickZoom={false}
+          scrollWheelZoom={false}
+          boxZoom={false}
+          keyboard={false}
+          zoomControl={false}
+        >
+          <TileLayer
+            attribution='&copy; <a href="https://carto.com/">Carto</a>'
+            url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+            subdomains={["a", "b", "c", "d"]}
+          />
+          {geoData && (
+            <GeoJSON
+              data={geoData}
+              onEachFeature={onEachFeature}
+            />
+          )}
+        </MapContainer>
+        <div 
+          className="deselect-button"
+          onClick={handleDeselect}
+          title="Deselect district"
+          style={{
+            display: selectedLayerRef.current ? 'flex' : 'none',
+            position: 'absolute',
+            top: '15px',
+            right: '15px'
+          }}
+        >
+          ×
+        </div>
+      </div>
     </div>
   );
 }
