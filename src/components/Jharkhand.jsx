@@ -192,9 +192,9 @@ export default function JharkhandMap() {
             }
           });
 
-          const places = jharkhandTouristPlaces.filter(
-            (place) => place.district === districtName && place.streetView
-          );
+          const places = jharkhandTouristPlaces
+            .filter((place) => place.district === districtName && place.streetView)
+            .slice(0, 2); // Take the first two places
           setMarkers(places);
         } else {
           setMarkers([]);
