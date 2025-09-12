@@ -247,7 +247,7 @@ export default function JharkhandMap() {
             <Marker key={idx} position={[place.lat, place.lon]}>
               <Popup>
                 <div className="popup-content">
-                  <span>{place.name}</span>
+                  <span style={{ fontSize: "16px", fontWeight: "bold" }}>{place.name}</span>
                   {place.streetView && (
                     <button
                       className="explore-button"
