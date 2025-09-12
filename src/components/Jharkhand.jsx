@@ -14,37 +14,15 @@ export default function JharkhandMap() {
   const hoveredLayerRef = useRef(null);
   const selectedLayerRef = useRef(null);
   const [streetViewUrl, setStreetViewUrl] = useState(null);
-  
+  const [selectedDistrict, setSelectedDistrict] = useState(null);
 
   const colors = [
-    "#FF6B6B", // Coral Red
-    "#FFBE0B", // Bright Yellow
-    "#FF9F1C", // Orange
-    "#FFE066", // Light Yellow
-    "#F72585", // Magenta
-    "#FF89A0", // Pink
-    "#EF476F", // Strawberry Red
-    "#FF6363", // Light Red
-    "#4ECDC4", // Turquoise
-    "#2EC4B6", // Aqua
-    "#06D6A0", // Mint Green
-    "#4CC9F0", // Sky Blue
-    "#3A86FF", // Bright Blue
-    "#4361EE", // Royal Blue
-    "#8338EC", // Purple
-    "#7209B7", // Deep Purple
-    "#FFD166", // Lemon
-    "#F4D35E", // Mustard
-    "#F9C74F", // Golden Yellow
-    "#90BE6D", // Light Green
-    "#43AA8B", // Tealish Green
-    "#F9844A", // Orange-Red
-    "#F8961E", // Tangerine
-    "#F94144"  // Vivid Red
+    "#FF6B6B", "#FFBE0B", "#FF9F1C", "#FFE066", "#F72585", "#FF89A0",
+    "#EF476F", "#FF6363", "#4ECDC4", "#2EC4B6", "#06D6A0", "#4CC9F0",
+    "#3A86FF", "#4361EE", "#8338EC", "#7209B7", "#FFD166", "#F4D35E",
+    "#F9C74F", "#90BE6D", "#43AA8B", "#F9844A", "#F8961E", "#F94144"
   ];
-  
 
-  // Function to shuffle array (Fisher-Yates algorithm)
   const shuffleArray = (array) => {
     const newArray = [...array];
     for (let i = newArray.length - 1; i > 0; i--) {
@@ -54,20 +32,14 @@ export default function JharkhandMap() {
     return newArray;
   };
 
-  // Assign a unique color to each district
   const assignDistrictColors = (features) => {
     if (!features) return {};
-    
-    // Shuffle the colors to get a random order
     const shuffledColors = shuffleArray(colors);
-    
     const colorMap = {};
     features.forEach((feature, index) => {
       const districtName = feature.properties?.dtname || `district_${index}`;
-      // Use modulo to ensure we don't run out of colors
       colorMap[districtName] = shuffledColors[index % shuffledColors.length];
     });
-    
     return colorMap;
   };
 
@@ -76,11 +48,8 @@ export default function JharkhandMap() {
       .then((r) => r.json())
       .then((data) => {
         setGeoData(data);
-        // Assign colors once we have the GeoJSON data
         if (data && data.features) {
           setDistrictColors(assignDistrictColors(data.features));
-          
-          // Auto-fit map to Jharkhand bounds
           if (mapRef.current && data.features.length > 0) {
             const geoJsonLayer = L.geoJSON(data);
             const bounds = geoJsonLayer.getBounds();
@@ -91,7 +60,6 @@ export default function JharkhandMap() {
       .catch((err) => console.error("Failed to load geojson:", err));
   }, []);
 
-  // Helper function to get the DOM element from a Leaflet layer
   const getLayerElement = (layer) => {
     return layer._path || null;
   };
@@ -104,13 +72,27 @@ export default function JharkhandMap() {
       }
     });
     selectedLayerRef.current = null;
-    setMarkers([]); // Clear markers
+    setMarkers([]);
+    setSelectedDistrict(null);
+  };
+
+  // NEW FUNCTION: reapply selected district when coming back from Street View
+  const reapplySelection = () => {
+    if (!selectedDistrict) return;
+    layerGroupRef.current.forEach((l) => {
+      const districtName = l.feature?.properties?.dtname;
+      const element = getLayerElement(l);
+      if (districtName === selectedDistrict && element) {
+        element.classList.add("selected");
+        selectedLayerRef.current = l;
+      } else if (element) {
+        element.classList.add("dimmed");
+      }
+    });
   };
 
   const onEachFeature = (feature, layer) => {
     const districtName = feature.properties?.dtname || "Unknown";
-    
-    // Get the assigned color for this district
     const districtColor = districtColors[districtName] || "#FF6B6B";
 
     layer.setStyle({
@@ -122,6 +104,23 @@ export default function JharkhandMap() {
       className: "district-shape"
     });
 
+    // Restore selection if this district is the one stored in state
+    if (selectedDistrict === districtName) {
+      const element = getLayerElement(layer);
+      if (element) {
+        element.classList.add("selected");
+      }
+      selectedLayerRef.current = layer;
+      layerGroupRef.current.forEach((l) => {
+        if (l !== layer) {
+          const otherElement = getLayerElement(l);
+          if (otherElement) {
+            otherElement.classList.add("dimmed");
+          }
+        }
+      });
+    }
+
     layer.bindTooltip(districtName, {
       permanent: true,
       direction: "center",
@@ -132,12 +131,10 @@ export default function JharkhandMap() {
 
     layer.on({
       mouseover: () => {
-        if (selectedLayerRef.current) return; // disable hover if something is selected
+        if (selectedLayerRef.current) return;
         hoveredLayerRef.current = layer;
         const element = getLayerElement(layer);
-        if (element) {
-          element.classList.add("hovered");
-        }
+        if (element) element.classList.add("hovered");
 
         layerGroupRef.current.forEach((l) => {
           if (l !== layer) {
@@ -150,11 +147,9 @@ export default function JharkhandMap() {
         layer.bringToFront();
       },
       mouseout: () => {
-        if (selectedLayerRef.current) return; // don't reset if something is selected
+        if (selectedLayerRef.current) return;
         const element = getLayerElement(layer);
-        if (element) {
-          element.classList.remove("hovered");
-        }
+        if (element) element.classList.remove("hovered");
         layerGroupRef.current.forEach((l) => {
           const otherElement = getLayerElement(l);
           if (otherElement) {
@@ -163,40 +158,31 @@ export default function JharkhandMap() {
         });
       },
       click: () => {
-        // If we already have a selected district, clear it first
         if (selectedLayerRef.current) {
           const prevElement = getLayerElement(selectedLayerRef.current);
-          if (prevElement) {
-            prevElement.classList.remove("selected");
-          }
+          if (prevElement) prevElement.classList.remove("selected");
           selectedLayerRef.current = null;
         }
 
         const element = getLayerElement(layer);
         const isAlreadySelected = element && element.classList.contains("selected");
 
-        resetAll(); // fully reset map before applying new selection
+        resetAll(); // keep this: we want to clear previous selection
 
         if (!isAlreadySelected) {
-          // Select this one
-          if (element) {
-            element.classList.add("selected");
-          }
+          if (element) element.classList.add("selected");
           selectedLayerRef.current = layer;
-
-          // Dim others except selected
+          setSelectedDistrict(districtName);
           layerGroupRef.current.forEach((l) => {
             if (l !== layer) {
               const otherElement = getLayerElement(l);
-              if (otherElement) {
-                otherElement.classList.add("dimmed");
-              }
+              if (otherElement) otherElement.classList.add("dimmed");
             }
           });
 
           const places = jharkhandTouristPlaces
             .filter((place) => place.district === districtName && place.streetView)
-            .slice(0, 2); // Take the first two places
+            .slice(0, 2);
           setMarkers(places);
         } else {
           setMarkers([]);
@@ -210,96 +196,85 @@ export default function JharkhandMap() {
   };
 
   return (
-    <div style={{ 
-      height: "110vh", 
-      width: "80%", 
-      position: "relative", 
-      margin: "0 auto" 
-    }}>
-      <div style={{ 
-        position: 'relative', 
-        height: '100%', 
-        width: '100%'
-      }}>
+    <div style={{ height: "110vh", width: "80%", position: "relative", margin: "0 auto" }}>
+      <div style={{ position: "relative", height: "100%", width: "100%" }}>
         {streetViewUrl ? (
-            <div className="street-view-container" style={{ height: "100%", width: "100%", position: "relative" }}>
-              <iframe
-                src={streetViewUrl}
-                style={{ border: 0, width: "100%", height: "100%" }}
-                allowFullScreen
-                loading="lazy"
-              />
-              <button
-                onClick={() => setStreetViewUrl(null)}
-                className="back-to-map"
-                style={{
-                  position: "absolute",
-                  top: "10px",
-                  left: "10px",
-                  zIndex: 1000,
-                  background: "#00000088",
-                  color: "#fff",
-                  padding: "8px 12px",
-                  borderRadius: "8px",
-                  cursor: "pointer",
-                }}
-              >
-                ← Back to Map
-              </button>
-            </div>
-        ):(
-          <MapContainer
-          center={[23.6, 85.3]}
-          zoom={8}
-          style={{ height: "100%", width: "100%" }}
-          whenCreated={(mapInstance) => (mapRef.current = mapInstance)}
-          dragging={false}
-          touchZoom={false}
-          doubleClickZoom={false}
-          scrollWheelZoom={false}
-          boxZoom={false}
-          keyboard={false}
-          zoomControl={false}
-        >
-          <TileLayer
-            attribution='&copy; <a href="https://carto.com/">Carto</a>'
-            url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-            subdomains={["a", "b", "c", "d"]}
-          />
-          {geoData && (
-            <GeoJSON
-              data={geoData}
-              onEachFeature={onEachFeature}
+          <div className="street-view-container" style={{ height: "100%", width: "100%", position: "relative" }}>
+            <iframe
+              src={streetViewUrl}
+              style={{ border: 0, width: "100%", height: "100%" }}
+              allowFullScreen
+              loading="lazy"
             />
-          )}
-          {markers.map((place, idx) => (
-            <Marker key={idx} position={[place.lat, place.lon]}>
-              <Popup>
-                <div className="popup-content">
-                  <span style={{ fontSize: "16px", fontWeight: "bold" }}>{place.name}</span>
-                  {place.streetView && (
-                    <button
-                      className="explore-button"
-                      onClick={() => setStreetViewUrl(place.streetView, "_blank")}
-                    >
-                      Explore Now!
-                    </button>
-                  )}
-                </div>
-              </Popup>
-            </Marker>
-          ))}
-        </MapContainer>
+            <button
+              onClick={() => {
+                setStreetViewUrl(null);
+                setTimeout(() => reapplySelection(), 50);
+              }}
+              className="back-to-map"
+              style={{
+                position: "absolute",
+                top: "10px",
+                left: "10px",
+                zIndex: 1000,
+                background: "#00000088",
+                color: "#fff",
+                padding: "8px 12px",
+                borderRadius: "8px",
+                cursor: "pointer",
+              }}
+            >
+              ← Back to Map
+            </button>
+          </div>
+        ) : (
+          <MapContainer
+            center={[23.6, 85.3]}
+            zoom={8}
+            style={{ height: "100%", width: "100%" }}
+            whenCreated={(mapInstance) => (mapRef.current = mapInstance)}
+            dragging={false}
+            touchZoom={false}
+            doubleClickZoom={false}
+            scrollWheelZoom={false}
+            boxZoom={false}
+            keyboard={false}
+            zoomControl={false}
+          >
+            <TileLayer
+              attribution='&copy; <a href="https://carto.com/">Carto</a>'
+              url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+              subdomains={["a", "b", "c", "d"]}
+            />
+            {geoData && <GeoJSON data={geoData} onEachFeature={onEachFeature} />}
+            {markers.map((place, idx) => (
+              <Marker key={idx} position={[place.lat, place.lon]}>
+                <Popup>
+                  <div className="popup-content">
+                    <span style={{ fontSize: "16px", fontWeight: "bold" }}>{place.name}</span>
+                    {place.streetView && (
+                      <button
+                        className="explore-button"
+                        onClick={() => setStreetViewUrl(place.streetView)}
+                      >
+                        Explore Now!
+                      </button>
+                    )}
+                  </div>
+                </Popup>
+              </Marker>
+            ))}
+          </MapContainer>
         )}
-        <div 
+        <div
           className="deselect-button"
           onClick={handleDeselect}
           title="Deselect district"
           style={{
-            display: selectedLayerRef.current ? 'flex' : 'none',
-            position: 'absolute',
-            top: '15px',
-            right: '15px'
+            display: selectedLayerRef.current ? "flex" : "none",
+            position: "absolute",
+            top: "15px",
+            right: "15px"
           }}
         >
           ×
