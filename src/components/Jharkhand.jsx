@@ -13,6 +13,8 @@ export default function JharkhandMap() {
   const layerGroupRef = useRef([]);
   const hoveredLayerRef = useRef(null);
   const selectedLayerRef = useRef(null);
+  const [streetViewUrl, setStreetViewUrl] = useState(null);
+  
 
   const colors = [
     "#FF6B6B", // Coral Red
@@ -219,7 +221,34 @@ export default function JharkhandMap() {
         height: '100%', 
         width: '100%'
       }}>
-        <MapContainer
+        {streetViewUrl ? (
+            <div className="street-view-container" style={{ height: "100%", width: "100%", position: "relative" }}>
+              <iframe
+                src={streetViewUrl}
+                style={{ border: 0, width: "100%", height: "100%" }}
+                allowFullScreen
+                loading="lazy"
+              />
+              <button
+                onClick={() => setStreetViewUrl(null)}
+                className="back-to-map"
+                style={{
+                  position: "absolute",
+                  top: "10px",
+                  left: "10px",
+                  zIndex: 1000,
+                  background: "#00000088",
+                  color: "#fff",
+                  padding: "8px 12px",
+                  borderRadius: "8px",
+                  cursor: "pointer",
+                }}
+              >
+                ← Back to Map
+              </button>
+            </div>
+        ):(
+          <MapContainer
           center={[23.6, 85.3]}
           zoom={8}
           style={{ height: "100%", width: "100%" }}
@@ -251,7 +280,7 @@ export default function JharkhandMap() {
                   {place.streetView && (
                     <button
                       className="explore-button"
-                      onClick={() => window.open(place.streetView, "_blank")}
+                      onClick={() => setStreetViewUrl(place.streetView, "_blank")}
                     >
                       Explore Now!
                     </button>
@@ -261,6 +290,7 @@ export default function JharkhandMap() {
             </Marker>
           ))}
         </MapContainer>
+        )}
         <div 
           className="deselect-button"
           onClick={handleDeselect}

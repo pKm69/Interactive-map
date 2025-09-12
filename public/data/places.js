@@ -1,6 +1,6 @@
 const jharkhandTouristPlaces = [
     // 1. Ranchi
-    { district: "Ranchi", name: "Hundru Falls", lat: 23.3368, lon: 85.6708 , streetView: "https://www.google.com/maps/@23.450922,85.66745,3a,75y,342.14h,100.94t/data=!3m8!1e1!3m6!1sCIHM0ogKEICAgIDq3ICfIg!2e10!3e11!6shttps:%2F%2Flh3.googleusercontent.com%2Fgpms-cs-s%2FAB8u6HY1HVVsGnSC8d2Z2JLrLhjN7qMa8CvUcEa2PYYyMFZrQZiCp5lsSSwLYALQNRNuYatjzv7bsNxkB0FrqleUYzJSEEP1XUSZl4g10zYhkZPiMcy25kOcWTH0Ke3sNagLkqAMh99W%3Dw900-h600-k-no-pi-10.943388090561243-ya342.13857423827955-ro0-fo100!7i8704!8i4352?entry=ttu&g_ep=EgoyMDI1MDkwOS4wIKXMDSoASAFQAw%3D%3DD"},
+    { district: "Ranchi", name: "Hundru Falls", lat: 23.3368, lon: 85.6708 , streetView: "https://www.google.com/maps/embed?pb=!4v1757713814586!6m8!1m7!1sCAoSFkNJSE0wb2dLRUlDQWdJRHEzSUNmSWc.!2m2!1d23.45092199211176!2d85.66745002193967!3f342.14!4f10.939999999999998!5f0.7820865974627469"},
     { district: "Ranchi", name: "Jagannath Mandir", lat: 23.3168, lon: 85.2815, streetView: "https://www.google.com/maps/@23.317085,85.281559,3a,75y,154.76h,120.22t/data=!3m7!1e1!3m5!1sWoTX6LSyyZsogEHDm3Yamg!2e0!6shttps:%2F%2Fstreetviewpixels-pa.googleapis.com%2Fv1%2Fthumbnail%3Fcb_client%3Dmaps_sv.tactile%26w%3D900%26h%3D600%26pitch%3D-30.223421744438014%26panoid%3DWoTX6LSyyZsogEHDm3Yamg%26yaw%3D154.75966955190066!7i13312!8i6656?entry=ttu&g_ep=EgoyMDI1MDkwOS4wIKXMDSoASAFQAw%3D%3D"},
 
     // 2. Dhanbad
