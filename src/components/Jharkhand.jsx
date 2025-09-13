@@ -206,26 +206,6 @@ export default function JharkhandMap() {
               allowFullScreen
               loading="lazy"
             />
-            <button
-              onClick={() => {
-                setStreetViewUrl(null);
-                setTimeout(() => reapplySelection(), 50);
-              }}
-              className="back-to-map"
-              style={{
-                position: "absolute",
-                top: "10px",
-                left: "10px",
-                zIndex: 1000,
-                background: "#00000088",
-                color: "#fff",
-                padding: "8px 12px",
-                borderRadius: "8px",
-                cursor: "pointer",
-              }}
-            >
-              ← Back to Map
-            </button>
           </div>
         ) : (
           <MapContainer
@@ -266,12 +246,22 @@ export default function JharkhandMap() {
             ))}
           </MapContainer>
         )}
+        {/* Single X Button (dual behavior) */}
         <div
           className="deselect-button"
-          onClick={handleDeselect}
-          title="Deselect district"
+          onClick={() => {
+            if (streetViewUrl) {
+              // If we are in Street View → Go back to Map
+              setStreetViewUrl(null);
+              setTimeout(() => reapplySelection(), 50); // Reapply highlight for selected district
+            } else {
+              // Otherwise → Deselect district
+              handleDeselect();
+            }
+          }}
+          title={streetViewUrl ? "Back to Map" : "Deselect district"}
           style={{
-            display: selectedLayerRef.current ? "flex" : "none",
+            display: selectedLayerRef.current || streetViewUrl ? "flex" : "none",
             position: "absolute",
             top: "15px",
             right: "15px"
