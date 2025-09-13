@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import { MapContainer, TileLayer, GeoJSON, Marker, Popup } from "react-leaflet";
+import { MapContainer, TileLayer, GeoJSON, Marker } from "react-leaflet";
 import jharkhandTouristPlaces from "../../public/data/places.js";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -15,7 +15,9 @@ export default function JharkhandMap() {
   const selectedLayerRef = useRef(null);
   const [streetViewUrl, setStreetViewUrl] = useState(null);
   const [selectedDistrict, setSelectedDistrict] = useState(null);
+  const [selectedPlace, setSelectedPlace] = useState(null); // <-- NEW: stores marker click info
 
+  // --- District Colors ---
   const colors = [
     "#FF6B6B", "#FFBE0B", "#FF9F1C", "#FFE066", "#F72585", "#FF89A0",
     "#EF476F", "#FF6363", "#4ECDC4", "#2EC4B6", "#06D6A0", "#4CC9F0",
@@ -54,6 +56,10 @@ export default function JharkhandMap() {
             const geoJsonLayer = L.geoJSON(data);
             const bounds = geoJsonLayer.getBounds();
             mapRef.current.fitBounds(bounds, { padding: [20, 20] });
+
+            setTimeout(() => {
+              mapRef.current.invalidateSize();
+            }, 100);
           }
         }
       })
@@ -74,6 +80,7 @@ export default function JharkhandMap() {
     selectedLayerRef.current = null;
     setMarkers([]);
     setSelectedDistrict(null);
+    setSelectedPlace(null); // also clear selected marker info
   };
 
   // NEW FUNCTION: reapply selected district when coming back from Street View
@@ -196,7 +203,7 @@ export default function JharkhandMap() {
   };
 
   return (
-    <div style={{ height: "110vh", width: "80%", position: "relative", margin: "0 auto" }}>
+    <div style={{ height: "70vh", width: "70%", position: "relative", margin: "20px auto" }}>
       <div style={{ position: "relative", height: "100%", width: "100%" }}>
         {streetViewUrl ? (
           <div className="street-view-container" style={{ height: "100%", width: "100%", position: "relative" }}>
@@ -210,7 +217,8 @@ export default function JharkhandMap() {
         ) : (
           <MapContainer
             center={[23.6, 85.3]}
-            zoom={8}
+            zoom={7.5}
+            zoomSnap={0.1}
             style={{ height: "100%", width: "100%" }}
             whenCreated={(mapInstance) => (mapRef.current = mapInstance)}
             dragging={false}
@@ -227,25 +235,46 @@ export default function JharkhandMap() {
               subdomains={["a", "b", "c", "d"]}
             />
             {geoData && <GeoJSON data={geoData} onEachFeature={onEachFeature} />}
+
+            {/* --- MARKERS: no popup, just click handler --- */}
             {markers.map((place, idx) => (
-              <Marker key={idx} position={[place.lat, place.lon]}>
-                <Popup>
-                  <div className="popup-content">
-                    <span style={{ fontSize: "16px", fontWeight: "bold" }}>{place.name}</span>
-                    {place.streetView && (
-                      <button
-                        className="explore-button"
-                        onClick={() => setStreetViewUrl(place.streetView)}
-                      >
-                        Explore Now!
-                      </button>
-                    )}
-                  </div>
-                </Popup>
-              </Marker>
+              <Marker
+                key={idx}
+                position={[place.lat, place.lon]}
+                eventHandlers={{
+                  click: () => setSelectedPlace(place)
+                }}
+              />
             ))}
           </MapContainer>
         )}
+
+        {/* --- CUSTOM INFO BOX FOR MARKER --- */}
+        {selectedPlace && (
+          <div className="info-box">
+            <div className="info-box-header">
+              <span className="info-box-title">{selectedPlace.name}</span>
+              <button
+                className="info-box-close"
+                onClick={() => setSelectedPlace(null)}
+              >
+                ×
+              </button>
+            </div>
+            {selectedPlace.streetView && (
+              <button
+                className="explore-button"
+                onClick={() => {
+                  setStreetViewUrl(selectedPlace.streetView);
+                  setSelectedPlace(null);
+                }}
+              >
+                Explore Now!
+              </button>
+            )}
+          </div>
+        )}
+
         {/* Single X Button (dual behavior) */}
         <div
           className="deselect-button"
